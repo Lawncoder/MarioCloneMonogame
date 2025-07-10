@@ -1,0 +1,12 @@
+Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"C:/Users/indep/RiderProjects/Mario/Mario/Content/Default.spritefont","C:/Users/indep/RiderProjects/Mario/Mario/Content/bin/DesktopGL/Content/Default.xnb","FontDescriptionProcessor","SpriteFontContent",2068,21529,0.1826443
+"C:/Users/indep/RiderProjects/Mario/Mario/Content/DefaultX5.spritefont","C:/Users/indep/RiderProjects/Mario/Mario/Content/bin/DesktopGL/Content/DefaultX5.xnb","FontDescriptionProcessor","SpriteFontContent",2068,267289,0.1930618
+"C:/Users/indep/RiderProjects/Mario/Mario/Content/goomba.jpg.jpg","C:/Users/indep/RiderProjects/Mario/Mario/Content/bin/DesktopGL/Content/goomba.xnb","TextureProcessor","Texture2DContent",70071,1922005,0.1696848
+"C:/Users/indep/RiderProjects/Mario/Mario/Content/koopaTroopa.png","C:/Users/indep/RiderProjects/Mario/Mario/Content/bin/DesktopGL/Content/koopaTroopa.xnb","TextureProcessor","Texture2DContent",74685,227445,0.1313588
+"C:/Users/indep/RiderProjects/Mario/Mario/Content/map.json","C:\Users\indep\RiderProjects\Mario\Mario\Content\bin\DesktopGL\Content\map.json","CopyItem","File",26585,26585,0.000954
+"C:/Users/indep/RiderProjects/Mario/Mario/Content/mario.png","C:/Users/indep/RiderProjects/Mario/Mario/Content/bin/DesktopGL/Content/mario.xnb","TextureProcessor","Texture2DContent",1497,484501,0.1320682
+"C:/Users/indep/RiderProjects/Mario/Mario/Content/mariotileset.jpg","C:/Users/indep/RiderProjects/Mario/Mario/Content/bin/DesktopGL/Content/mariotileset.xnb","TextureProcessor","Texture2DContent",60727,946261,0.1328724
+"C:/Users/indep/RiderProjects/Mario/Mario/Content/questionBlock.png","C:/Users/indep/RiderProjects/Mario/Mario/Content/bin/DesktopGL/Content/questionBlock.xnb","TextureProcessor","Texture2DContent",33860,152885,0.1275428
+"C:/Users/indep/RiderProjects/Mario/Mario/Content/shell.png","C:/Users/indep/RiderProjects/Mario/Mario/Content/bin/DesktopGL/Content/shell.xnb","TextureProcessor","Texture2DContent",107366,1112541,0.023054
+"C:/Users/indep/RiderProjects/Mario/Mario/Content/spritesheet.png","C:/Users/indep/RiderProjects/Mario/Mario/Content/bin/DesktopGL/Content/spritesheet.xnb","TextureProcessor","Texture2DContent",22971,49237,0.1215121
+"C:/Users/indep/RiderProjects/Mario/Mario/Content/Tilemap.xml","C:\Users\indep\RiderProjects\Mario\Mario\Content\bin\DesktopGL\Content\Tilemap.xml","CopyItem","File",678,678,0.0009961

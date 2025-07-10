@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SourceFileCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Profile>Reach</Profile>
+  <Platform>DesktopGL</Platform>
+  <Config />
+  <SourceFiles>
+    <File>C:/Users/indep/RiderProjects/Mario/Mario/Content/Default.spritefont</File>
+    <File>C:/Users/indep/RiderProjects/Mario/Mario/Content/DefaultX5.spritefont</File>
+    <File>C:/Users/indep/RiderProjects/Mario/Mario/Content/goomba.jpg.jpg</File>
+    <File>C:/Users/indep/RiderProjects/Mario/Mario/Content/koopaTroopa.png</File>
+    <File>C:/Users/indep/RiderProjects/Mario/Mario/Content/mario.png</File>
+    <File>C:/Users/indep/RiderProjects/Mario/Mario/Content/mariotileset.jpg</File>
+    <File>C:/Users/indep/RiderProjects/Mario/Mario/Content/questionBlock.png</File>
+    <File>C:/Users/indep/RiderProjects/Mario/Mario/Content/shell.png</File>
+    <File>C:/Users/indep/RiderProjects/Mario/Mario/Content/spritesheet.png</File>
+  </SourceFiles>
+  <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File>goomba.jpg</File>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+  </DestFiles>
+</SourceFileCollection>
