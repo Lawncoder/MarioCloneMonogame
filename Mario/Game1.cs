@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Text.Json;
 using Arch.Buffer;
 using Arch.Core;
@@ -200,21 +202,7 @@ public class Game1 : Core
         _renderTarget = new RenderTarget2D(GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 
-        CreateQuestionBlock(new QuestionBlockComponent()
-        {
-            QuestionBlockComponentType = QuestionBlockComponent.QuestionBlockComponentTypes.Score,
-            Score = 100
-        }, new Vector2(24, 5));
-        CreateQuestionBlock(new QuestionBlockComponent()
-        {
-            QuestionBlockComponentType = QuestionBlockComponent.QuestionBlockComponentTypes.Score,
-            Score = 100
-        }, new Vector2(25, 5));
-        CreateQuestionBlock(new QuestionBlockComponent()
-        {
-            QuestionBlockComponentType = QuestionBlockComponent.QuestionBlockComponentTypes.Score,
-            Score = 100
-        }, new Vector2(26, 5));
+       
 
         #region Initialize Mario and Camera
 
@@ -259,9 +247,9 @@ public class Game1 : Core
         
         
        
-        CreateKoopa(new Vector2(12,10));
-        CreateGoomba(new Vector2(13,10));
-        CreateHurtbox(new Vector2(22, 11), 3, 2);
+        CreateEntitiesFromData("map.json", EntityTypes.Goomba);
+        CreateEntitiesFromData("map.json", EntityTypes.Koopa);
+        CreateEntitiesFromData("map.json", EntityTypes.QuestionBlock);
 
        
 
@@ -306,6 +294,7 @@ public class Game1 : Core
     }
     private void CreateGoomba(Vector2 position)
     {
+        position += new Vector2(.5f, .5f);
         var goombaBody = PhysicsWorld.CreateBody(position, 0f, BodyType.Dynamic);
         goombaBody.FixedRotation = true;
         var goombaFixture = goombaBody.CreateRectangle(1, 1, 1, Vector2.Zero);
@@ -334,7 +323,7 @@ public class Game1 : Core
         questionBlock = Sprite.FromFile("questionBlock");
         koopaTroopa =  Sprite.FromFile("koopaTroopa");
         shell =  Sprite.FromFile("shell");
-        _map = Tilemap.FromFile(Content,"map.json", true);
+        _map = Tilemap.FromFile(Content,"map.json", "Graphics");
         CreateCollisionLayer("map.json");
 
     }
@@ -354,7 +343,10 @@ public class Game1 : Core
                 {
                     collisionTile[i] = new bool[doc.RootElement.GetProperty("mapHeight").GetInt32()];
                 }
-                foreach (var tile in doc.RootElement.GetProperty("layers")[0].GetProperty("tiles").EnumerateArray())
+                foreach (var tile in doc.RootElement.GetProperty("layers").EnumerateArray().Where(element =>
+                         {
+                             return element.GetProperty("name").GetString().Equals("Collision");
+                         }).ToList()[0].GetProperty("tiles").EnumerateArray())
                 {
                     collisionTile[tile.GetProperty("x").GetInt32()][tile.GetProperty("y").GetInt32()] = true;
 
@@ -489,27 +481,25 @@ public class Game1 : Core
         //Escaping the Program
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
             Keyboard.GetState().IsKeyDown(Keys.Escape))
-            Exit(); 
-        
-      
-        
+            Exit();
+
+        var buffer = new List<Vector2>();
+        foreach (var position in enemySpawns.Keys)
+        {
+            if (position.X - MaxCameraX/16f <=10f)
+            {
+                CreateEntity(enemySpawns[position], position, false);
+                buffer.Add(position);
+            }
+        }
+
+        foreach (var position in buffer)
+        {
+            enemySpawns.Remove(position);
+        }
         
         _scoreColor = Color.Lerp(_scoreColor, _targetColor, 0.3f);
         
-        
-        
-        
-
-        
-       
-       
-            
-       
-       
-       
-       
-      
-     
        
        //Handling Question Boxes
        var query = new QueryDescription().WithAll<HitComponent, QuestionBlockComponent, PhysicsComponent>();
@@ -554,8 +544,56 @@ public class Game1 : Core
         CommandBuffer.Playback(EntityWorld);
     }
 
+    public class EntityTypes
+    {
+        public const string Koopa = "Koopa";
+        public const string Goomba = "Goomba"; 
+        public const string QuestionBlock = "QuestionBlock";
+        
+    }
 
+    private Dictionary<Vector2, string> enemySpawns = new Dictionary<Vector2, string>();
+    public void CreateEntity(string type, Vector2 position, bool init)
+    {
+        switch (type)
+        {
+            case EntityTypes.Koopa:
+                if (!init) CreateKoopa(position);
+                else enemySpawns.Add(position, EntityTypes.Koopa);
+                break;
+            case EntityTypes.Goomba:
+                if (!init) CreateGoomba(position);
+                else enemySpawns.Add(position, EntityTypes.Goomba);
+                break;
+            case EntityTypes.QuestionBlock :
+                CreateQuestionBlock(new QuestionBlockComponent {Score = 100, QuestionBlockComponentType = QuestionBlockComponent.QuestionBlockComponentTypes.Score}, position);
+                break;
+            default:
+                throw new InvalidEnumArgumentException("Not a valid entity type");
+        }
+    }
+    
+    
 
+    public void CreateEntitiesFromData(string json, string type )
+    {
+        using (var stream = TitleContainer.OpenStream(Path.Combine(Content.RootDirectory, json)))
+        {
+            using (var document = JsonDocument.Parse(stream))
+            {
+                var enumerator = document.RootElement.GetProperty("layers").EnumerateArray().Where(e =>
+                {
+                    return e.GetProperty("name").GetString().Equals(type);
+                }).ToList()[0].GetProperty("tiles").EnumerateArray();
+                Console.WriteLine(enumerator.ToString());
+                foreach (var tile in enumerator )
+                {
+                    CreateEntity(type, new Vector2(tile.GetProperty("x").GetInt16(), tile.GetProperty("y").GetInt16()),true);
+                }
+            }
+        }
+    }
+    
     public override void PhysicsUpdate()
     {
         
@@ -574,7 +612,7 @@ public class Game1 : Core
     {
        
         GraphicsDevice.SetRenderTarget(_renderTarget);
-        GraphicsDevice.Clear(Color.White);
+        GraphicsDevice.Clear(Color.CornflowerBlue);
         
 
         SpriteBatch.Begin(transformMatrix: Camera.ToMatrix(), samplerState:  SamplerState.PointClamp);
