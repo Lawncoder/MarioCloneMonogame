@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using Arch.Buffer;
 using Arch.Core;
 using Arch.Core.Extensions;
@@ -13,13 +10,12 @@ using Mario.Enemy;
 using Mario.Helpers;
 using Mario.Systems;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame;
+using MonoGameLibrary;
 using MonoGameLibrary.Graphics;
 using MonoGameLibrary.Input;
-using nkast.Aether.Physics2D.Collision;
 using nkast.Aether.Physics2D.Collision.Shapes;
 using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Dynamics;
@@ -33,7 +29,7 @@ using World = Arch.Core.World;
 
 namespace Mario;
 
-public class Game1 : Game
+public class Game1 : Core
 {
     const int SCREEN_WIDTH = 320;
     const int SCREEN_HEIGHT = 180;
@@ -41,8 +37,8 @@ public class Game1 : Game
     
     
     private CommandBuffer _commandBuffer;
-    private GraphicsDeviceManager _graphics;
-    private SpriteBatch _spriteBatch;
+  
+  
     public static World EntityWorld { get;private set; }
     public static nkast.Aether.Physics2D.Dynamics.World PhysicsWorld { get;private set; }
 
@@ -53,11 +49,9 @@ public class Game1 : Game
     private Color _scoreColor = Color.Red;
     private Color _targetColor = Color.Red;
     
-    public static ContentManager SContent { get;private set; }
+   
 
-    private List<Sprite> SpriteBuffer;
-    
-    private List<AnimatedSprite> AnimatedSpriteBuffer;
+   
     
     public static KeyboardInfo KeyboardState { get; private set; }
 
@@ -108,10 +102,10 @@ public class Game1 : Game
             
         
 
-            var query = new QueryDescription().WithAll<QuestionBlockComponent, Fixture>();
-            EntityWorld.Query(query, (Entity entity, ref Fixture fixture) =>
+            var query = new QueryDescription().WithAll<QuestionBlockComponent, PhysicsComponent>();
+            EntityWorld.Query(query, (Entity entity, ref PhysicsComponent physicsComponent) =>
             {
-                if (fixture == contact.FixtureA)
+                if (physicsComponent.Fixture == contact.FixtureA)
                 {
                     
                     if (!EntityWorld.Has<HitComponent>(entity))
@@ -126,18 +120,18 @@ public class Game1 : Game
         }
         else
         {
-            var query = new QueryDescription().WithAll<Fixture>();
+            var query = new QueryDescription().WithAll<PhysicsComponent>();
             Entity entityA = Entity.Null;
             Entity entityB = Entity.Null;
-            EntityWorld.Query(in query, (Entity entity, ref Fixture fixture) =>
+            EntityWorld.Query(in query, (Entity entity, ref PhysicsComponent physics) =>
             {
-                if (fixture == contact.FixtureA)
+                if (physics.Fixture == contact.FixtureA)
                 {
                     
                     entityA = entity;
                     
                 }
-                if (fixture == contact.FixtureB)
+                if (physics.Fixture ==  contact.FixtureB)
                 {
                     entityB = entity;
                 }
@@ -177,31 +171,29 @@ public class Game1 : Game
         return true;
     }
     
-    public Game1()
+    public Game1() : base("Mario", 1920, 1080, false)
     {
-        _graphics = new GraphicsDeviceManager(this);
+        
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
         PhysicsWorld = new nkast.Aether.Physics2D.Dynamics.World();
         EntityWorld = World.Create();
-        _graphics.PreferredBackBufferWidth = 1920;
-        _graphics.PreferredBackBufferHeight = 1080;
         _camera = new Transform();
         _camera.Position = new Vector2(0, 0);
         _camera.Scale = new Vector2(1,1);
         _camera.Rotation = 0f;
         PhysicsWorld.Gravity = PhysicsWorld.Gravity * -5; 
         KeyboardState = new  KeyboardInfo();
-        SpriteBuffer = new List<Sprite>();
-        AnimatedSpriteBuffer = new List<AnimatedSprite>();
-        SContent = Content;
+     
+   
         _commandBuffer = new CommandBuffer();
         _systems = new  List<BaseSystem<World, float>>();
         CommandBuffer = _commandBuffer;
         _systems.Add(new DamageSystem(EntityWorld));
         _systems.Add(new KoopaTroopaShellSystem(EntityWorld));
         _systems.Add(new EnemyPatrolSystem(EntityWorld));
-        
+     
+    
        
         
 
@@ -215,11 +207,13 @@ public class Game1 : Game
     
     protected override void Initialize()
     {
-        renderTarget = new RenderTarget2D(GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT);
+        
+        
     
         
         
         base.Initialize();
+        renderTarget = new RenderTarget2D(GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 
         CreateQuestionBlock(new QuestionBlockComponent()
@@ -261,7 +255,7 @@ public class Game1 : Game
         marioTransform.Position = new Vector2(0, 0);
         marioTransform.Rotation = 0f;
         marioTransform.Scale = new Vector2(16/348f,16/348f);
-        EntityWorld.Create(marioBody, marioCollider, "mario",marioTransform, new SpriteTypes(SpriteTypes.SpriteTypesEnum.Mario), marioData);
+        EntityWorld.Create(new PhysicsComponent(marioBody, marioCollider), "mario",marioTransform, new SpriteTypes(SpriteTypes.SpriteTypesEnum.Mario), marioData);
         
        
 
@@ -275,7 +269,7 @@ public class Game1 : Game
         cameraBoundryFixture.CollisionCategories = CollisionAssistant.CategoryFromLayers(Boundary);
         collisionBoundary = cameraBoundryBody;
 
-        EntityWorld.Create(cameraBoundryFixture, cameraBoundryBody, "cameraBoundry", new Transform());
+        EntityWorld.Create(new PhysicsComponent(cameraBoundryBody, cameraBoundryFixture), "cameraBoundry", new Transform());
 
         #endregion
         
@@ -308,7 +302,7 @@ public class Game1 : Game
             Scale = new  Vector2(TILE_WIDTH/196f,TILE_WIDTH/290f),
         };
         var koopaKoopa = new KoopaTroopaComponent();
-        EntityWorld.Create(koopaKoopa, koopaPatrol, koopaTransform, koopaTroopaBody, koopaTroopaFixture, "Koopa", new SpriteTypes(SpriteTypes.SpriteTypesEnum.Koopa));
+        EntityWorld.Create(koopaKoopa, koopaPatrol, koopaTransform, new PhysicsComponent(body : koopaTroopaBody, fixture: koopaTroopaFixture), "Koopa", new SpriteTypes(SpriteTypes.SpriteTypesEnum.Koopa));
     }
 
     private void CreateQuestionBlock(QuestionBlockComponent blockComponent, Vector2 position)
@@ -321,9 +315,9 @@ public class Game1 : Game
         
         blockFixture.CollidesWith = CollisionAssistant.CategoryFromLayers(Player, Enemy);
         blockFixture.Tag = "Block";
-        
-        
-        EntityWorld.Create("QBlock", blockComponent, blockBody, blockFixture, new SpriteTypes(SpriteTypes.SpriteTypesEnum.Question), new Transform()
+
+
+        EntityWorld.Create("QBlock", blockComponent, new PhysicsComponent(fixture: blockFixture, body:blockBody), new SpriteTypes(SpriteTypes.SpriteTypesEnum.Question), new Transform()
         {
             Scale= new  Vector2(16/200f, 16/191f)
         });
@@ -342,18 +336,20 @@ public class Game1 : Game
         var goombaPatrol = new Patrol();
         var goombaTransform = new Transform();
         goombaTransform.Scale = new Vector2(TILE_WIDTH/728f,TILE_WIDTH/660f);
-        EntityWorld.Create(goombaPatrol, goombaBody, "goomba",goombaTransform, goombaFixture, new SpriteTypes(SpriteTypes.SpriteTypesEnum.Goomba));
+        EntityWorld.Create(goombaPatrol, new PhysicsComponent(goombaBody, goombaFixture), "goomba",goombaTransform, new SpriteTypes(SpriteTypes.SpriteTypesEnum.Goomba));
     }
 
 
 
     protected override void LoadContent()
     {
-        _spriteBatch = new SpriteBatch(GraphicsDevice);
+        
         _default = Content.Load<SpriteFont>("Default");
         _defaultX5 = Content.Load<SpriteFont>("DefaultX5");
-        mario = Sprite.FromFile("mario");
+        Texture2D texture = Content.Load<Texture2D>("mario");
         goomba = Sprite.FromFile("goomba");
+        mario = Sprite.FromFile("mario");
+        
         questionBlock = Sprite.FromFile("questionBlock");
         koopaTroopa =  Sprite.FromFile("koopaTroopa");
         shell =  Sprite.FromFile("shell");
@@ -479,7 +475,7 @@ public class Game1 : Game
         fixture.CollisionCategories = CollisionAssistant.CategoryFromLayers(Ground);
         fixture.Tag = "Ground";
         fixture.Body.Tag = "Ground";
-        EntityWorld.Create(fixture, fixture.Body, "ground");
+        EntityWorld.Create(new PhysicsComponent(fixture.Body, fixture), "ground");
     }
 
     public void CreateHurtbox(Vector2 position, int width, int height)
@@ -489,7 +485,7 @@ public class Game1 : Game
         fixture.CollisionCategories = CollisionAssistant.CategoryFromLayers(CollisionLayers.Killer, Ground);
         fixture.Tag = "Ground";
         fixture.Body.Tag = "Ground";
-        EntityWorld.Create(fixture, fixture.Body, "ground");
+        EntityWorld.Create(new PhysicsComponent(fixture.Body, fixture), "ground");
     }
 
 
@@ -497,8 +493,16 @@ public class Game1 : Game
     private bool _goombaSpawnFlag = false;
     protected override void Update(GameTime gameTime)
     {
-        Console.WriteLine(mario.Position);
-       
+        //Console.WriteLine(mario.Position);
+        EntityWorld.Query(new QueryDescription().WithAny<Body, Fixture>(), (entity =>
+        {
+            string objects = "";
+            foreach (var o in entity.GetAllComponents())
+            {
+                objects += o.ToString();
+            }
+            throw new Exception($"Screwed Up Physics: {objects}");
+        }));
         foreach (var s in _systems)
         {
             s.BeforeUpdate(gameTime.ElapsedGameTime.Milliseconds/1000f);
@@ -556,15 +560,19 @@ public class Game1 : Game
      
        
        //Handling Question Boxes
-       var query = new QueryDescription().WithAll<HitComponent, QuestionBlockComponent>();
-       EntityWorld.Query(query, (Entity entity, ref HitComponent block, ref QuestionBlockComponent blockComponent) =>
+       var query = new QueryDescription().WithAll<HitComponent, QuestionBlockComponent, PhysicsComponent>();
+       EntityWorld.Query(query, (Entity entity, ref HitComponent block, ref QuestionBlockComponent blockComponent, ref PhysicsComponent physicsComponent) =>
        {
            if (block.CollisionNormal.Equals(GameDevMath.Up))
            {
-               _commandBuffer.Destroy(entity);
-               PhysicsWorld.Remove(EntityWorld.Get<Body>(entity));
+               
+               PhysicsWorld.Remove(physicsComponent.Body);
                _score += blockComponent.Score;
                _targetColor = Color.Lerp(Color.Red, Color.Green, blockComponent.Score/100f);
+               if (entity.IsAlive())
+               {
+                   _commandBuffer.Destroy(entity);
+               }
               
            }
            else
@@ -608,11 +616,11 @@ public class Game1 : Game
         
         
         //Moving Mario
-        var marioQuery = new QueryDescription().WithAll<PlatformerCharacter, Body>();
-        EntityWorld.Query(in marioQuery, (Entity entity, ref Transform transform, ref PlatformerCharacter platformerCharacter, ref Body body) =>
+        var marioQuery = new QueryDescription().WithAll<PlatformerCharacter, PhysicsComponent>();
+        EntityWorld.Query(in marioQuery, (Entity entity, ref Transform transform, ref PlatformerCharacter platformerCharacter, ref PhysicsComponent physics) =>
         {
 
-            MaxCameraX = (float)Math.Max(MaxCameraX, GameDevMath.Physics2ScreenVector(body.Position).X);
+            MaxCameraX = (float)Math.Max(MaxCameraX, GameDevMath.Physics2ScreenVector(physics.Body.Position).X);
             _camera.Position.X = -MaxCameraX + SCREEN_WIDTH * .5f/_camera.Scale.X;
             
             var grounded = false;
@@ -626,7 +634,7 @@ public class Game1 : Game
                 }
 
                 return 1f;
-            }, body.Position + new Vector2(0.5f, 0), body.Position + new Vector2(0,0.55f));
+            }, physics.Body.Position + new Vector2(0.5f, 0), physics.Body.Position + new Vector2(0,0.55f));
             if (!grounded)
             {
                 PhysicsWorld.RayCast((fixture, point, normal, fraction) =>
@@ -639,7 +647,7 @@ public class Game1 : Game
                     }
 
                     return 1f;
-                }, body.Position - new Vector2(0.5f, 0), body.Position + new Vector2(0,0.55f));
+                }, physics.Body.Position - new Vector2(0.5f, 0), physics.Body.Position + new Vector2(0,0.55f));
             }
             
             var direction = KeyboardState.IsKeyDown(Keys.Right)?1f:0f - (KeyboardState.IsKeyDown(Keys.Left)?1f:0f);
@@ -653,7 +661,7 @@ public class Game1 : Game
             bool jump = _timePassedSinceLastJumpButtonPressed < JUMP_BUFFER*1000f;
            
             //Applies Gravity. Change this for dashes, floating states etc.
-            var velocityY=body.LinearVelocity.Y;
+            var velocityY=physics.Body.LinearVelocity.Y;
           
             if (!grounded)
             {
@@ -662,7 +670,7 @@ public class Game1 : Game
             }
             
             
-            var velocityX = body.LinearVelocity.X;
+            var velocityX = physics.Body.LinearVelocity.X;
             switch (platformerCharacter.State)
             {
                 case PlatformerCharacter.States.Falling:
@@ -690,14 +698,14 @@ public class Game1 : Game
                   
                    
                     velocityX = Math.Clamp(velocityX, -platformerCharacter.MaxSpeed, platformerCharacter.MaxSpeed);
-                    body.LinearVelocity= new Vector2(velocityX, body.LinearVelocity.Y);
+                    physics.Body.LinearVelocity= new Vector2(velocityX, physics.Body.LinearVelocity.Y);
                     if (EntityWorld.Has<HitComponent>(entity))
                     {
                         HitComponent hitComponent = EntityWorld.Get<HitComponent>(entity);
                         if (hitComponent.CollisionNormal.Y > 0.8 && CollisionAssistant.CategoryInCategories(CollisionLayers.Enemy, hitComponent.CollisionLayer))
                         {
                             
-                            body.LinearVelocity = new Vector2(body.LinearVelocity.X, (float)-Math.Sqrt(3*PhysicsWorld.Gravity.Y));
+                            physics.Body.LinearVelocity = new Vector2(physics.Body.LinearVelocity.X, (float)-Math.Sqrt(3*PhysicsWorld.Gravity.Y));
                             
                         }
                         _commandBuffer.Remove<HitComponent>(entity);
@@ -725,16 +733,16 @@ public class Game1 : Game
                     }
                    
                     velocityX = Math.Clamp(velocityX, -platformerCharacter.MaxSpeed, platformerCharacter.MaxSpeed);
-                    body.LinearVelocity= new Vector2(velocityX, body.LinearVelocity.Y);
+                    physics.Body.LinearVelocity= new Vector2(velocityX, physics.Body.LinearVelocity.Y);
 
                     if (jump && _jumpButtonReleasedSinceLastFalling)
                     {
                         platformerCharacter.State = PlatformerCharacter.States.Jumping;
-                        body.LinearVelocity = new  Vector2(body.LinearVelocity.X, -platformerCharacter.JumpForce);
+                        physics.Body.LinearVelocity = new  Vector2(physics.Body.LinearVelocity.X, -platformerCharacter.JumpForce);
                         _jumpButtonReleasedSinceLastFalling = false;
                     }
                     
-                    if (body.LinearVelocity.Y > 0.001 && !grounded)
+                    if (physics.Body.LinearVelocity.Y > 0.001 && !grounded)
                     {
                         platformerCharacter.State = PlatformerCharacter.States.Falling;
                     }
@@ -743,7 +751,7 @@ public class Game1 : Game
                     break;
 
                 case PlatformerCharacter.States.Jumping:
-                    if (body.LinearVelocity.Y > 0.001 && !grounded)
+                    if (physics.Body.LinearVelocity.Y > 0.001 && !grounded)
                     {
                         platformerCharacter.State = PlatformerCharacter.States.Falling;
                     }
@@ -779,7 +787,7 @@ public class Game1 : Game
                     }
                    
                     velocityX = Math.Clamp(velocityX, -platformerCharacter.MaxSpeed, platformerCharacter.MaxSpeed);
-                    body.LinearVelocity= new Vector2(velocityX, velocityY);
+                    physics.Body.LinearVelocity= new Vector2(velocityX, velocityY);
                     break;
             }
             if (KeyboardState.IsKeyUp(Keys.Space))
@@ -794,11 +802,11 @@ public class Game1 : Game
 
         PhysicsWorld.Step(0.02f);
         
-        var query = new QueryDescription().WithAll<Body, Transform, Fixture>();
-        EntityWorld.Query(in query, (Entity Entity, ref Body body, ref Transform transform, ref Fixture fixture) =>
+        var query = new QueryDescription().WithAll<Transform, PhysicsComponent>();
+        EntityWorld.Query(in query, (Entity Entity, ref PhysicsComponent physics, ref Transform transform) =>
         {
-            transform.Rotation = body.Rotation;
-            transform.Position = body.Position;
+            transform.Rotation = physics.Body.Rotation;
+            transform.Position = physics.Body.Position;
 
 
 
@@ -815,10 +823,10 @@ public class Game1 : Game
         GraphicsDevice.Clear(Color.White);
         
 
-        _spriteBatch.Begin(transformMatrix: _camera.ToMatrix(), samplerState:  SamplerState.PointClamp);
+        SpriteBatch.Begin(transformMatrix: _camera.ToMatrix(), samplerState:  SamplerState.PointClamp);
         //Draw Tilemap
-        _spriteBatch.DrawCircle(Microsoft.Xna.Framework.Vector2.Zero, 5f, 20, Color.Wheat);
-       _map.Draw(_spriteBatch);
+        SpriteBatch.DrawCircle(Microsoft.Xna.Framework.Vector2.Zero, 5f, 20, Color.Wheat);
+       _map.Draw(SpriteBatch);
        
         
        
@@ -844,38 +852,38 @@ public class Game1 : Game
             {
                 sprite.Effects = _flipMario ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             }
-            sprite.Draw(spriteBatch: _spriteBatch);
+            sprite.Draw(spriteBatch: SpriteBatch);
             
         });
         
-        query = new QueryDescription().WithAll<Fixture>();
-        EntityWorld.Query(in query, (Entity entity, ref Fixture fixture, ref Body body) =>
+        query = new QueryDescription().WithAll<PhysicsComponent>();
+        EntityWorld.Query(in query, (Entity entity, ref PhysicsComponent physics) =>
         {
-            var shape = (PolygonShape)fixture.Shape;
+            var shape = (PolygonShape)physics.Fixture.Shape;
             for (int i = 0; i < shape.Vertices.Count; i++)
             {
-                bool killer = CollisionAssistant.CategoryInCategories(CollisionLayers.Killer, fixture.CollisionCategories);
-                _spriteBatch.DrawLine(GameDevMath.Physics2ScreenVector(body.Position + shape.Vertices[i]), GameDevMath.Physics2ScreenVector(body.Position + shape.Vertices[(i+1)%shape.Vertices.Count]), killer ? Color.Red : Color.Aquamarine);
+                bool killer = CollisionAssistant.CategoryInCategories(CollisionLayers.Killer, physics.Fixture.CollisionCategories);
+                SpriteBatch.DrawLine(GameDevMath.Physics2ScreenVector(physics.Body.Position + shape.Vertices[i]), GameDevMath.Physics2ScreenVector(physics.Body.Position + shape.Vertices[(i+1)%shape.Vertices.Count]), killer ? Color.Red : Color.Aquamarine);
             }
         });
         
         
         
-        _spriteBatch.End();
+        SpriteBatch.End();
         
         
         
         
         GraphicsDevice.SetRenderTarget(null);
-        _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
         var region = new TextureRegion(renderTarget, 0, 0, renderTarget.Width, renderTarget.Height);
-        region.Draw(_spriteBatch, Microsoft.Xna.Framework.Vector2.Zero, Color.White, 0f, Microsoft.Xna.Framework.Vector2.Zero, 6f, SpriteEffects.None, 1f);
-        _spriteBatch.End();
+        region.Draw(SpriteBatch, Microsoft.Xna.Framework.Vector2.Zero, Color.White, 0f, Microsoft.Xna.Framework.Vector2.Zero, 6f, SpriteEffects.None, 1f);
+        SpriteBatch.End();
         //UI
-        _spriteBatch.Begin();
+        SpriteBatch.Begin();
         
-        _spriteBatch.DrawString(_defaultX5, _score.ToString(), new Microsoft.Xna.Framework.Vector2(0, 0), _scoreColor);
-        _spriteBatch.End();
+        SpriteBatch.DrawString(_defaultX5, _score.ToString(), new Microsoft.Xna.Framework.Vector2(0, 0), _scoreColor);
+        SpriteBatch.End();
 
         base.Draw(gameTime);
     }

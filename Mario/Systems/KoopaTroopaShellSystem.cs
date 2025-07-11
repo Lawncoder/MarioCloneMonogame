@@ -29,15 +29,17 @@ public class KoopaTroopaShellSystem
    
     public override void Update(in float deltaTime)
     {
-        var query = new  QueryDescription().WithAll<KoopaTroopaComponent, Body, Transform, SpriteTypes>();
+        var query = new  QueryDescription().WithAll<KoopaTroopaComponent,PhysicsComponent, Transform, SpriteTypes>();
         float notIndTime = deltaTime;
-        World.Query(in query, (Entity entity, ref KoopaTroopaComponent troopa, ref HitComponent hitComponent, ref Body body, ref Transform transform, ref SpriteTypes spriteType, ref Fixture fixture) =>
+        World.Query(in query, (Entity entity, ref KoopaTroopaComponent troopa,  ref PhysicsComponent physics, ref Transform transform, ref SpriteTypes spriteType) =>
        {
            
 
          
            if (World.Has<HitComponent>(entity))
+               
            {
+               var hitComponent = World.Get<HitComponent>(entity);
                if (troopa.IsShelled)
                {
                    if (troopa.Moving)
@@ -61,10 +63,10 @@ public class KoopaTroopaShellSystem
                    {
                        if (!troopa.Moving)
                        {
-                           fixture.CollisionCategories += (int)CollisionLayers.Killer;
-                           body.LinearVelocity = new nkast.Aether.Physics2D.Common.Vector2(7f * (hitComponent.Position.X - body.Position.X > 0 ? -1 : 1),
-                               body.LinearVelocity.Y);
-                           troopa.Velocity = body.LinearVelocity.X;
+                           physics.Fixture.CollisionCategories += (int)CollisionLayers.Killer;
+                           physics.Body.LinearVelocity = new nkast.Aether.Physics2D.Common.Vector2(7f * (hitComponent.Position.X - physics.Body.Position.X > 0 ? -1 : 1),
+                               physics.Body.LinearVelocity.Y);
+                           troopa.Velocity = physics.Body.LinearVelocity.X;
                            troopa.Moving = true;
                            
                        }
@@ -100,7 +102,7 @@ public class KoopaTroopaShellSystem
                
                }
                
-               World.Remove<HitComponent>(entity);
+               Game1.CommandBuffer.Remove<HitComponent>(entity);
                
            }
             
@@ -108,12 +110,12 @@ public class KoopaTroopaShellSystem
            {
                if (troopa.Moving)
                {
-                   body.LinearVelocity = new Vector2(troopa.Velocity, body.LinearVelocity.Y);
+                   physics.Body.LinearVelocity = new Vector2(troopa.Velocity, physics.Body.LinearVelocity.Y);
                }
                else
                {
                    troopa.TimeToBecomeBack -= notIndTime;
-                   body.LinearVelocity = new Vector2(0, body.LinearVelocity.Y);
+                   physics.Body.LinearVelocity = new Vector2(0, physics.Body.LinearVelocity.Y);
                    if (troopa.TimeToBecomeBack <= 0)
                    {
                        troopa.IsShelled = false;
@@ -121,7 +123,7 @@ public class KoopaTroopaShellSystem
                        spriteType.SpriteType = SpriteTypes.SpriteTypesEnum.Koopa;
                        
                        transform.Scale = new Vector2(16f/196f, 16f/ 290f);
-                       fixture.CollisionCategories -= (int)CollisionLayers.Killer;
+                       physics.Fixture.CollisionCategories -= (int)CollisionLayers.Killer;
 
                    }
                }

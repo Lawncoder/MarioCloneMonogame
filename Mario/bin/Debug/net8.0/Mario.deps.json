@@ -13,7 +13,8 @@
           "Arch.System": "1.1.0",
           "MonoGame.Content.Builder.Task": "3.8.4",
           "MonoGame.Framework.DesktopGL": "3.8.4",
-          "MonoGame.Primitives2D": "1.1.1"
+          "MonoGame.Primitives2D": "1.1.1",
+          "MonoGameLibrary": "1.0.0"
         },
         "runtime": {
           "Mario.dll": {}
@@ -207,6 +208,17 @@
             "fileVersion": "1.1.2.0"
           }
         }
+      },
+      "MonoGameLibrary/1.0.0": {
+        "dependencies": {
+          "Aether.Physics2D": "2.2.0"
+        },
+        "runtime": {
+          "MonoGameLibrary.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
       }
     }
   },
@@ -334,6 +346,11 @@
       "sha512": "sha512-PKu/zSvwV1fWxt8+CEW15O9OlQ2zB9UoeAaor/aJJ0QeTKxxSjigczYLoVPKjYLAQu3ddZQd7Z3zplVTtUgigQ==",
       "path": "zeroallocjobscheduler/1.1.2",
       "hashPath": "zeroallocjobscheduler.1.1.2.nupkg.sha512"
+    },
+    "MonoGameLibrary/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
     }
   }
 }

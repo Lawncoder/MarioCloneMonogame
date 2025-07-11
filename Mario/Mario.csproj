@@ -20,7 +20,6 @@
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Enemy\AI\" />
-      <Folder Include="MonoGameLibrary\" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\..\MonoGameLibrary\MonoGameLibrary.csproj" />

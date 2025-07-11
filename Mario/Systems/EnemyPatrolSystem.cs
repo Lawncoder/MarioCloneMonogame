@@ -1,5 +1,6 @@
 ﻿using Arch.Core;
 using Arch.System;
+using Mario.Components;
 using Mario.Enemy;
 using Mario.Helpers;
 using Microsoft.Xna.Framework;
@@ -15,10 +16,10 @@ public class EnemyPatrolSystem : BaseSystem<World, float>
 
     public override void Update(in float deltaTime)
     {
-        var query = new QueryDescription().WithAll<Body, Patrol>();
-        World.Query(in query, (Entity entity, ref Body body, ref Patrol goomba) =>
+        var query = new QueryDescription().WithAll<PhysicsComponent, Patrol>();
+        World.Query(in query, (Entity entity, ref PhysicsComponent physics, ref Patrol goomba) =>
         {
-            Vector2 raycastPoint = body.Position + (goomba.FacingRight ? new Vector2(goomba.DetectionDistance, 0) : - new Vector2(goomba.DetectionDistance, 0) );
+            Vector2 raycastPoint = physics.Body.Position + (goomba.FacingRight ? new Vector2(goomba.DetectionDistance, 0) : - new Vector2(goomba.DetectionDistance, 0) );
             bool hit = false;
   
   
@@ -34,7 +35,7 @@ public class EnemyPatrolSystem : BaseSystem<World, float>
                         return -1;
                     }
                 }),
-                body.Position, raycastPoint);
+                physics.Body.Position, raycastPoint);
 
             if (hit)
             {
@@ -46,7 +47,7 @@ public class EnemyPatrolSystem : BaseSystem<World, float>
             float velocityX =  direction *goomba.MaxSpeed;
 
          
-            body.LinearVelocity = new Vector2(velocityX, body.LinearVelocity.Y);
+            physics.Body.LinearVelocity = new Vector2(velocityX, physics.Body.LinearVelocity.Y);
            
            
         });

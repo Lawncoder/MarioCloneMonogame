@@ -50,3 +50,6 @@ C:\Users\indep\RiderProjects\Mario\Mario\bin\Debug\net8.0\Content\mariotileset.x
 C:\Users\indep\RiderProjects\Mario\Mario\bin\Debug\net8.0\Arch.System.dll
 C:\Users\indep\RiderProjects\Mario\Mario\bin\Debug\net8.0\Content\map.json
 C:\Users\indep\RiderProjects\Mario\Mario\bin\Debug\net8.0\Content\spritesheet.xnb
+C:\Users\indep\RiderProjects\Mario\Mario\bin\Debug\net8.0\MonoGameLibrary.dll
+C:\Users\indep\RiderProjects\Mario\Mario\bin\Debug\net8.0\MonoGameLibrary.pdb
+C:\Users\indep\RiderProjects\Mario\Mario\obj\Debug\net8.0\Mario.sourcelink.json
