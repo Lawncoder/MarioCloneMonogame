@@ -9,10 +9,11 @@ using MonoGameLibrary.Graphics;
 using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Dynamics;
 using World = Arch.Core.World;
+using MonoGameLibrary.ECS;
 
 namespace Mario.Systems;
 
-public class DamageSystem : BaseSystem<World,float>
+public class DamageSystem : SystemBase
 {
     public DamageSystem(World world) : base(world) {}
 
@@ -42,7 +43,7 @@ public class DamageSystem : BaseSystem<World,float>
                         component.TimeToActuallyDie -= dTime;
                         if (component.TimeToActuallyDie <= 0)
                         {
-                            Game1.MaxCameraX = 10;
+                            Game1.MaxCameraX = 160;
                             if (Game1.PhysicsWorld.BodyList.Contains(physics.Body))
                                 Game1.PhysicsWorld.Remove(physics.Body);
                             var marioBody = Game1.PhysicsWorld.CreateBody(new Vector2(2, 10), 0f, BodyType.Dynamic);
@@ -54,6 +55,8 @@ public class DamageSystem : BaseSystem<World,float>
                             marioCollider.CollidesWith = CollisionAssistant.CategoryFromLayers(CollisionLayers.Enemy, CollisionLayers.Ground, CollisionLayers.Block, CollisionLayers.Boundary, CollisionLayers.Wall);
                             marioCollider.CollisionCategories = CollisionAssistant.CategoryFromLayers(CollisionLayers.Player);
                             physics = new PhysicsComponent(marioBody, marioCollider);
+                            
+                            
                             Game1.CommandBuffer.Remove<DeathComponent>(entity);
                             
                             
@@ -90,8 +93,7 @@ public class DamageSystem : BaseSystem<World,float>
                         component.TimeToActuallyDie -= dTime;
                         if (component.TimeToActuallyDie <= 0)
                         {
-                            
-                            Game1.PhysicsWorld.Remove(physics.Body);
+                            if (Game1.PhysicsWorld.BodyList.Contains(physics.Body)) Game1.PhysicsWorld.Remove(physics.Body);
                             Game1.CommandBuffer.Remove<DeathComponent>(entity);
 
                             if (entity.IsAlive())

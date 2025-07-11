@@ -31,29 +31,15 @@ namespace Mario;
 
 public class Game1 : Core
 {
-    const int SCREEN_WIDTH = 320;
-    const int SCREEN_HEIGHT = 180;
-    private const int TILE_WIDTH = 16;
+    public const int SCREEN_WIDTH = 320;
+    public const int SCREEN_HEIGHT = 180;
+    public const int TILE_WIDTH = 16;
+    public const float TILE_SIZE = 1f;
     
-    
-    private CommandBuffer _commandBuffer;
-  
-  
-    public static World EntityWorld { get;private set; }
-    public static nkast.Aether.Physics2D.Dynamics.World PhysicsWorld { get;private set; }
-
     private SpriteFont _default;
     
-    private Transform _camera;
-
     private Color _scoreColor = Color.Red;
     private Color _targetColor = Color.Red;
-    
-   
-
-   
-    
-    public static KeyboardInfo KeyboardState { get; private set; }
 
     private int _score = 0;
     
@@ -64,7 +50,7 @@ public class Game1 : Core
     private CollisionLayers Wall = CollisionLayers.Wall;
     private CollisionLayers Boundary = CollisionLayers.Boundary;
     
-    private Body ground;
+    
     private Sprite mario;
     private Sprite goomba;
     private Sprite questionBlock;
@@ -72,20 +58,19 @@ public class Game1 : Core
     private Sprite koopaTroopa;
     private Body collisionBoundary;
 
-    RenderTarget2D renderTarget;
-    public const float TILE_SIZE = 1f;
+    RenderTarget2D _renderTarget;
+
     private Tilemap _map;
     private SpriteFont _defaultX5;
     
     private MouseInfo _mouseInfo = new MouseInfo();
-    float _timePassedSinceLastPhysicsUpdate = 0;
-    
-    private const float JUMP_BUFFER = 0.1f;
-    private float _timePassedSinceLastJumpButtonPressed = JUMP_BUFFER;
+
     public static float MaxCameraX = 160;
-    private bool _jumpButtonReleasedSinceLastFalling = true;
-    private List<BaseSystem<World, float>> _systems;
-    public static CommandBuffer CommandBuffer { get; private set;  }
+   
+   
+    
+    
+    
     public bool ResolveCollisions(Contact contact)
     {
            
@@ -149,7 +134,7 @@ public class Game1 : Core
                     
                     
                     
-            _commandBuffer.Add(entityA, hitComponent);
+            CommandBuffer.Add(entityA, hitComponent);
             
             hitComponent = new HitComponent();
             var normal2 = Vector2.One;
@@ -163,7 +148,7 @@ public class Game1 : Core
                     
                     
                     
-            _commandBuffer.Add(entityB, hitComponent);
+            CommandBuffer.Add(entityB, hitComponent);
         }
         
         
@@ -176,24 +161,23 @@ public class Game1 : Core
         
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
-        PhysicsWorld = new nkast.Aether.Physics2D.Dynamics.World();
+        
         EntityWorld = World.Create();
-        _camera = new Transform();
-        _camera.Position = new Vector2(0, 0);
-        _camera.Scale = new Vector2(1,1);
-        _camera.Rotation = 0f;
-        PhysicsWorld.Gravity = PhysicsWorld.Gravity * -5; 
-        KeyboardState = new  KeyboardInfo();
-     
-   
-        _commandBuffer = new CommandBuffer();
-        _systems = new  List<BaseSystem<World, float>>();
-        CommandBuffer = _commandBuffer;
-        _systems.Add(new DamageSystem(EntityWorld));
-        _systems.Add(new KoopaTroopaShellSystem(EntityWorld));
-        _systems.Add(new EnemyPatrolSystem(EntityWorld));
-     
-    
+        Camera = new Transform();
+        Camera.Position = new Vector2(0, 0);
+        Camera.Scale = new Vector2(1,1);
+        Camera.Rotation = 0f;
+        PhysicsWorld.Gravity = PhysicsWorld.Gravity * -5;
+
+
+
+
+
+        Systems.Add(new DamageSystem(EntityWorld));
+        Systems.Add(new KoopaTroopaShellSystem(EntityWorld)); 
+        Systems.Add(new EnemyPatrolSystem(EntityWorld));
+        Systems.Add(new CollisionResetter(EntityWorld));
+        Systems.Add(new PlatformerControllerSystem(EntityWorld));
        
         
 
@@ -213,7 +197,7 @@ public class Game1 : Core
         
         
         base.Initialize();
-        renderTarget = new RenderTarget2D(GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT);
+        _renderTarget = new RenderTarget2D(GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 
         CreateQuestionBlock(new QuestionBlockComponent()
@@ -279,10 +263,7 @@ public class Game1 : Core
         CreateGoomba(new Vector2(13,10));
         CreateHurtbox(new Vector2(22, 11), 3, 2);
 
-        foreach (var s in _systems)
-        {
-            s.Initialize();
-        }
+       
 
     }
 
@@ -358,7 +339,7 @@ public class Game1 : Core
 
     }
 
-    private List<Span> spanData;
+ 
     public void CreateCollisionLayer(string jsonFilename)
     {
         bool[][] collisionTile;
@@ -382,7 +363,7 @@ public class Game1 : Core
         }
 
         List<Span> spans = new List<Span>();
-        spanData = spans;
+       
 
         for (int i = 0; i < collisionTile[0].Length; i++)
         {
@@ -493,20 +474,8 @@ public class Game1 : Core
     private bool _goombaSpawnFlag = false;
     protected override void Update(GameTime gameTime)
     {
-        //Console.WriteLine(mario.Position);
-        EntityWorld.Query(new QueryDescription().WithAny<Body, Fixture>(), (entity =>
-        {
-            string objects = "";
-            foreach (var o in entity.GetAllComponents())
-            {
-                objects += o.ToString();
-            }
-            throw new Exception($"Screwed Up Physics: {objects}");
-        }));
-        foreach (var s in _systems)
-        {
-            s.BeforeUpdate(gameTime.ElapsedGameTime.Milliseconds/1000f);
-        }
+        
+       
 
         if (MaxCameraX / 16f > 15 && !_goombaSpawnFlag)
         {
@@ -515,18 +484,14 @@ public class Game1 : Core
         }
         
         
-        
-        KeyboardState.Update();
+   
         _mouseInfo.Update();
         //Escaping the Program
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
             Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit(); 
         
-        foreach (var s in _systems)
-        {
-            s.Update(gameTime.ElapsedGameTime.Milliseconds/1000f);
-        }
+      
         
         
         _scoreColor = Color.Lerp(_scoreColor, _targetColor, 0.3f);
@@ -534,20 +499,7 @@ public class Game1 : Core
         
         
         
-        //Fixed Update Code
-        _timePassedSinceLastPhysicsUpdate += gameTime.ElapsedGameTime.Milliseconds;
-        _timePassedSinceLastJumpButtonPressed += gameTime.ElapsedGameTime.Milliseconds;
-        
-       if (_timePassedSinceLastPhysicsUpdate >= 20f)
-       {
-           
-           PhysicsUpdate(gameTime);
-       }
 
-       if (KeyboardState.WasKeyJustPressedThisFrame(Keys.Space))
-       {
-           _timePassedSinceLastJumpButtonPressed = 0f;
-       }
         
        
        
@@ -571,14 +523,11 @@ public class Game1 : Core
                _targetColor = Color.Lerp(Color.Red, Color.Green, blockComponent.Score/100f);
                if (entity.IsAlive())
                {
-                   _commandBuffer.Destroy(entity);
+                   CommandBuffer.Destroy(entity);
                }
               
            }
-           else
-           {
-               EntityWorld.Remove<HitComponent>(entity);   
-           }
+          
                                 
        });
        
@@ -588,7 +537,7 @@ public class Game1 : Core
        
        
        
-       collisionBoundary.Position = new Vector2(-_camera.Position.X/TILE_WIDTH, collisionBoundary.Position.Y);
+       collisionBoundary.Position = new Vector2(-Camera.Position.X/TILE_WIDTH - .5f, collisionBoundary.Position.Y );
       
        
 
@@ -600,230 +549,35 @@ public class Game1 : Core
       
        
         base.Update(gameTime);
-        
-        
-        foreach (var s in _systems)
-        {
-            s.AfterUpdate(gameTime.ElapsedGameTime.Milliseconds/1000f);
-        }
-        _commandBuffer.Playback(EntityWorld);
+
+      
+        CommandBuffer.Playback(EntityWorld);
     }
 
 
-    private bool _flipMario = false;
-    protected void PhysicsUpdate(GameTime gameTime)
+
+    public override void PhysicsUpdate()
     {
         
         
-        //Moving Mario
-        var marioQuery = new QueryDescription().WithAll<PlatformerCharacter, PhysicsComponent>();
-        EntityWorld.Query(in marioQuery, (Entity entity, ref Transform transform, ref PlatformerCharacter platformerCharacter, ref PhysicsComponent physics) =>
-        {
-
-            MaxCameraX = (float)Math.Max(MaxCameraX, GameDevMath.Physics2ScreenVector(physics.Body.Position).X);
-            _camera.Position.X = -MaxCameraX + SCREEN_WIDTH * .5f/_camera.Scale.X;
-            
-            var grounded = false;
-            PhysicsWorld.RayCast((fixture, point, normal, fraction) =>
-            {
-               
-                if ((string)fixture.Body.Tag == "Ground")
-                {
-                    grounded = true;
-                    return fraction;
-                }
-
-                return 1f;
-            }, physics.Body.Position + new Vector2(0.5f, 0), physics.Body.Position + new Vector2(0,0.55f));
-            if (!grounded)
-            {
-                PhysicsWorld.RayCast((fixture, point, normal, fraction) =>
-                {
-               
-                    if ((string)fixture.Body.Tag == "Ground")
-                    {
-                        grounded = true;
-                        return fraction;
-                    }
-
-                    return 1f;
-                }, physics.Body.Position - new Vector2(0.5f, 0), physics.Body.Position + new Vector2(0,0.55f));
-            }
-            
-            var direction = KeyboardState.IsKeyDown(Keys.Right)?1f:0f - (KeyboardState.IsKeyDown(Keys.Left)?1f:0f);
-            _flipMario = direction switch
-            {
-                > 0 => false,
-                < 0 => true,
-                _ => _flipMario
-            };
-
-            bool jump = _timePassedSinceLastJumpButtonPressed < JUMP_BUFFER*1000f;
-           
-            //Applies Gravity. Change this for dashes, floating states etc.
-            var velocityY=physics.Body.LinearVelocity.Y;
-          
-            if (!grounded)
-            {
-                velocityY += platformerCharacter.Gravity;
-              
-            }
-            
-            
-            var velocityX = physics.Body.LinearVelocity.X;
-            switch (platformerCharacter.State)
-            {
-                case PlatformerCharacter.States.Falling:
-                    if (grounded)
-                    {
-                        platformerCharacter.State = PlatformerCharacter.States.Grounded;
-                    }
-                    if (direction != 0f)
-                    {
-                        velocityX += direction * platformerCharacter.Acceleration * 0.02f * 0.2f;
-                       
-                    }
-                    else
-                    {
-                        if (velocityX * velocityX > 0.1f)
-                        {
-                            velocityX += Math.Sign(-velocityX) * platformerCharacter.Acceleration * 0.02f * 0.2f;
-                        }
-                        else
-                        {
-                            velocityX *= 0f;
-                        }
-                    }
-
-                  
-                   
-                    velocityX = Math.Clamp(velocityX, -platformerCharacter.MaxSpeed, platformerCharacter.MaxSpeed);
-                    physics.Body.LinearVelocity= new Vector2(velocityX, physics.Body.LinearVelocity.Y);
-                    if (EntityWorld.Has<HitComponent>(entity))
-                    {
-                        HitComponent hitComponent = EntityWorld.Get<HitComponent>(entity);
-                        if (hitComponent.CollisionNormal.Y > 0.8 && CollisionAssistant.CategoryInCategories(CollisionLayers.Enemy, hitComponent.CollisionLayer))
-                        {
-                            
-                            physics.Body.LinearVelocity = new Vector2(physics.Body.LinearVelocity.X, (float)-Math.Sqrt(3*PhysicsWorld.Gravity.Y));
-                            
-                        }
-                        _commandBuffer.Remove<HitComponent>(entity);
-                    }
-                    
-                    break;
-                
-                case PlatformerCharacter.States.Grounded:
-                    
-                    if (direction != 0f)
-                    {
-                        velocityX += direction * platformerCharacter.Acceleration * 0.02f;
-                       
-                    }
-                    else
-                    {
-                        if (velocityX * velocityX > 0.1f)
-                        {
-                            velocityX += Math.Sign(-velocityX) * platformerCharacter.Acceleration * 0.02f;
-                        }
-                        else
-                        {
-                            velocityX *= 0f;
-                        }
-                    }
-                   
-                    velocityX = Math.Clamp(velocityX, -platformerCharacter.MaxSpeed, platformerCharacter.MaxSpeed);
-                    physics.Body.LinearVelocity= new Vector2(velocityX, physics.Body.LinearVelocity.Y);
-
-                    if (jump && _jumpButtonReleasedSinceLastFalling)
-                    {
-                        platformerCharacter.State = PlatformerCharacter.States.Jumping;
-                        physics.Body.LinearVelocity = new  Vector2(physics.Body.LinearVelocity.X, -platformerCharacter.JumpForce);
-                        _jumpButtonReleasedSinceLastFalling = false;
-                    }
-                    
-                    if (physics.Body.LinearVelocity.Y > 0.001 && !grounded)
-                    {
-                        platformerCharacter.State = PlatformerCharacter.States.Falling;
-                    }
-
-                   
-                    break;
-
-                case PlatformerCharacter.States.Jumping:
-                    if (physics.Body.LinearVelocity.Y > 0.001 && !grounded)
-                    {
-                        platformerCharacter.State = PlatformerCharacter.States.Falling;
-                    }
-
-                    if (grounded)
-                    {
-                        platformerCharacter.State = PlatformerCharacter.States.Grounded;
-                    }
-
-                    if (direction != 0f)
-                    {
-                        velocityX += direction * platformerCharacter.Acceleration * 0.02f * 0.2f;
-
-                    }
-                    else
-                    {
-                        if (velocityX * velocityX > 0.1f)
-                        {
-                            velocityX += Math.Sign(-velocityX) * platformerCharacter.Acceleration * 0.02f * 0.2f;
-                        }
-                        else
-                        {
-                            velocityX *= 0f;
-                        }
-                        
-                    }
-
-                    if (KeyboardState.IsKeyUp(Keys.Space))
-                    {
-                        platformerCharacter.State = PlatformerCharacter.States.Falling;
-                        velocityY *= 0.5f;
-                        
-                    }
-                   
-                    velocityX = Math.Clamp(velocityX, -platformerCharacter.MaxSpeed, platformerCharacter.MaxSpeed);
-                    physics.Body.LinearVelocity= new Vector2(velocityX, velocityY);
-                    break;
-            }
-            if (KeyboardState.IsKeyUp(Keys.Space))
-            {
-                _jumpButtonReleasedSinceLastFalling = true;
-            }
-            
-         
-           
-   
-        });
-
-        PhysicsWorld.Step(0.02f);
+        base.PhysicsUpdate();
         
-        var query = new QueryDescription().WithAll<Transform, PhysicsComponent>();
-        EntityWorld.Query(in query, (Entity Entity, ref PhysicsComponent physics, ref Transform transform) =>
-        {
-            transform.Rotation = physics.Body.Rotation;
-            transform.Position = physics.Body.Position;
-
-
-
-        });
+ 
 
         
-        //Here is ensuring we don't get 2 physics updates while another is activating
-        _timePassedSinceLastPhysicsUpdate = 0f;
+       
+
+        
+       
     }
     protected override void Draw(GameTime gameTime)
     {
        
-        GraphicsDevice.SetRenderTarget(renderTarget);
+        GraphicsDevice.SetRenderTarget(_renderTarget);
         GraphicsDevice.Clear(Color.White);
         
 
-        SpriteBatch.Begin(transformMatrix: _camera.ToMatrix(), samplerState:  SamplerState.PointClamp);
+        SpriteBatch.Begin(transformMatrix: Camera.ToMatrix(), samplerState:  SamplerState.PointClamp);
         //Draw Tilemap
         SpriteBatch.DrawCircle(Microsoft.Xna.Framework.Vector2.Zero, 5f, 20, Color.Wheat);
        _map.Draw(SpriteBatch);
@@ -848,10 +602,9 @@ public class Game1 : Core
             sprite.Scale = new Microsoft.Xna.Framework.Vector2(transform.Scale.X, transform.Scale.Y);
             sprite.Rotation = transform.Rotation;
             sprite.CenterOrigin();
-            if (spriteType.SpriteType == SpriteTypes.SpriteTypesEnum.Mario)
-            {
-                sprite.Effects = _flipMario ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-            }
+            
+            sprite.Effects = spriteType.Flip ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+            
             sprite.Draw(spriteBatch: SpriteBatch);
             
         });
@@ -876,7 +629,7 @@ public class Game1 : Core
         
         GraphicsDevice.SetRenderTarget(null);
         SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
-        var region = new TextureRegion(renderTarget, 0, 0, renderTarget.Width, renderTarget.Height);
+        var region = new TextureRegion(_renderTarget, 0, 0, _renderTarget.Width, _renderTarget.Height);
         region.Draw(SpriteBatch, Microsoft.Xna.Framework.Vector2.Zero, Color.White, 0f, Microsoft.Xna.Framework.Vector2.Zero, 6f, SpriteEffects.None, 1f);
         SpriteBatch.End();
         //UI

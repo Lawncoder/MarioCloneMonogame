@@ -5,6 +5,7 @@ using Arch.System;
 using Mario.Components;
 using Mario.Enemy;
 using Mario.Helpers;
+using MonoGameLibrary.ECS;
 using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Dynamics;
 using World = Arch.Core.World;
@@ -15,7 +16,7 @@ namespace Mario.Systems;
 
 
 public class KoopaTroopaShellSystem
-    : BaseSystem<World, float>
+    : SystemBase
 {
     public KoopaTroopaShellSystem(World world) : base(world)
     {
@@ -102,7 +103,7 @@ public class KoopaTroopaShellSystem
                
                }
                
-               Game1.CommandBuffer.Remove<HitComponent>(entity);
+              
                
            }
             
@@ -123,7 +124,7 @@ public class KoopaTroopaShellSystem
                        spriteType.SpriteType = SpriteTypes.SpriteTypesEnum.Koopa;
                        
                        transform.Scale = new Vector2(16f/196f, 16f/ 290f);
-                       physics.Fixture.CollisionCategories -= (int)CollisionLayers.Killer;
+                       
 
                    }
                }

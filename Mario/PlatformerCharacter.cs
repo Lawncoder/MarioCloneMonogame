@@ -10,6 +10,7 @@ public class PlatformerCharacter
     public float Gravity;
     public float JumpTime;
     public float JumpHeight;
+    public const float JUMP_BUFFER = 100f;
 
     public void AutoCalculateGravityAndForce()
     {
@@ -28,6 +29,7 @@ public class PlatformerCharacter
     {
         Grounded,
         Jumping,
-        Falling
+        Falling,
+        Dying
     }
 }

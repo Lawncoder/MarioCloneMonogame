@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/indep/RiderProjects/Mario/Mario/Content/DefaultX5.spritefont</SourceFile>
-  <SourceTime>2025-07-08T11:42:56.1431521-04:00</SourceTime>
-  <DestFile>C:/Users/indep/RiderProjects/Mario/Mario/Content/bin/DesktopGL/Content/DefaultX5.xnb</DestFile>
-  <DestTime>2025-07-08T11:45:42.8784006-04:00</DestTime>
+  <SourceFile>/Users/fire/RiderProjects/MarioCloneMonogame/Mario/Content/DefaultX5.spritefont</SourceFile>
+  <SourceTime>2025-07-11T13:03:15.5718666-04:00</SourceTime>
+  <DestFile>/Users/fire/RiderProjects/MarioCloneMonogame/Mario/Content/bin/DesktopGL/Content/DefaultX5.xnb</DestFile>
+  <DestTime>2025-07-11T13:10:03.1852609-04:00</DestTime>
   <Importer>FontDescriptionImporter</Importer>
   <ImporterTime>2025-06-02T06:31:02-04:00</ImporterTime>
   <Processor>FontDescriptionProcessor</Processor>
   <ProcessorTime>2025-06-02T06:31:02-04:00</ProcessorTime>
+  <Parameters>
+    <Key>PremultiplyAlpha</Key>
+    <Value>True</Value>
+  </Parameters>
+  <Parameters>
+    <Key>TextureFormat</Key>
+    <Value>Compressed</Value>
+  </Parameters>
   <Dependencies />
   <BuildAsset />
   <BuildOutput />

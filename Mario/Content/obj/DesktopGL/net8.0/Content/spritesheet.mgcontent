@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/indep/RiderProjects/Mario/Mario/Content/spritesheet.png</SourceFile>
-  <SourceTime>2025-07-09T14:33:45.4689416-04:00</SourceTime>
-  <DestFile>C:/Users/indep/RiderProjects/Mario/Mario/Content/bin/DesktopGL/Content/spritesheet.xnb</DestFile>
-  <DestTime>2025-07-09T14:34:09.2296722-04:00</DestTime>
+  <SourceFile>/Users/fire/RiderProjects/MarioCloneMonogame/Mario/Content/spritesheet.png</SourceFile>
+  <SourceTime>2025-07-11T13:03:15.589814-04:00</SourceTime>
+  <DestFile>/Users/fire/RiderProjects/MarioCloneMonogame/Mario/Content/bin/DesktopGL/Content/spritesheet.xnb</DestFile>
+  <DestTime>2025-07-11T13:10:03.5777455-04:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2025-06-02T06:31:02-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

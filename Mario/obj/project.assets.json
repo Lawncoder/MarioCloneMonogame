@@ -15,7 +15,7 @@
           }
         }
       },
-      "Arch/2.1.0-beta": {
+      "Arch/2.1.0": {
         "type": "package",
         "dependencies": {
           "Arch.LowLevel": "1.1.5",
@@ -275,7 +275,9 @@
         "type": "project",
         "framework": ".NETCoreApp,Version=v8.0",
         "dependencies": {
-          "Aether.Physics2D": "2.2.0"
+          "Aether.Physics2D": "2.2.0",
+          "Arch": "2.1.0",
+          "Arch.System": "1.1.0"
         },
         "compile": {
           "bin/placeholder/MonoGameLibrary.dll": {}
@@ -306,15 +308,15 @@
         "lib/netstandard2.0/Aether.Physics2D.xml"
       ]
     },
-    "Arch/2.1.0-beta": {
-      "sha512": "BBO6zpSeFknoOdW8metfPS+N/cVBF3kh3nRjdBR6fgK0knKYi7e0YaZs0m3QaqE/M4x4/PSlfjRboljR9ve8BA==",
+    "Arch/2.1.0": {
+      "sha512": "Z9zxQztEvD/c2tsdW+LDm5E3Rd04JKeWRa6S0JOBfEFE7800+JLa7pgMAL6I/hvOY6q93QXvQ6Y+5E/TPc5Tfw==",
       "type": "package",
-      "path": "arch/2.1.0-beta",
+      "path": "arch/2.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "README.md",
-        "arch.2.1.0-beta.nupkg.sha512",
+        "arch.2.1.0.nupkg.sha512",
         "arch.nuspec",
         "lib/net6.0/Arch.dll",
         "lib/net6.0/Arch.xml",
@@ -636,7 +638,6 @@
   "projectFileDependencyGroups": {
     "net8.0": [
       "Aether.Physics2D >= 2.2.0",
-      "Arch >= 2.1.0-beta",
       "Arch.System >= 1.1.0",
       "MonoGame.Content.Builder.Task >= 3.8.*",
       "MonoGame.Framework.DesktopGL >= 3.8.*",
@@ -645,32 +646,33 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\indep\\.nuget\\packages\\": {}
+    "/Users/fire/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\indep\\RiderProjects\\Mario\\Mario\\Mario.csproj",
+      "projectUniqueName": "/Users/fire/RiderProjects/MarioCloneMonogame/Mario/Mario.csproj",
       "projectName": "Mario",
-      "projectPath": "C:\\Users\\indep\\RiderProjects\\Mario\\Mario\\Mario.csproj",
-      "packagesPath": "C:\\Users\\indep\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\indep\\RiderProjects\\Mario\\Mario\\obj\\",
+      "projectPath": "/Users/fire/RiderProjects/MarioCloneMonogame/Mario/Mario.csproj",
+      "packagesPath": "/Users/fire/.nuget/packages/",
+      "outputPath": "/Users/fire/RiderProjects/MarioCloneMonogame/Mario/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\indep\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "/Users/fire/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
+        "/usr/local/share/dotnet/library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Users\\indep\\RiderProjects\\MonoGameLibrary\\MonoGameLibrary.csproj": {
-              "projectPath": "C:\\Users\\indep\\RiderProjects\\MonoGameLibrary\\MonoGameLibrary.csproj"
+            "/Users/fire/RiderProjects/MonoGameLibrary/MonoGameLibrary.csproj": {
+              "projectPath": "/Users/fire/RiderProjects/MonoGameLibrary/MonoGameLibrary.csproj"
             }
           }
         }
@@ -694,10 +696,6 @@
           "Aether.Physics2D": {
             "target": "Package",
             "version": "[2.2.0, )"
-          },
-          "Arch": {
-            "target": "Package",
-            "version": "[2.1.0-beta, )"
           },
           "Arch.System": {
             "target": "Package",
@@ -730,19 +728,15 @@
         "downloadDependencies": [
           {
             "name": "Microsoft.AspNetCore.App.Ref",
-            "version": "[8.0.17, 8.0.17]"
+            "version": "[8.0.16, 8.0.16]"
           },
           {
-            "name": "Microsoft.NETCore.App.Host.win-x64",
-            "version": "[8.0.17, 8.0.17]"
+            "name": "Microsoft.NETCore.App.Host.osx-arm64",
+            "version": "[8.0.16, 8.0.16]"
           },
           {
             "name": "Microsoft.NETCore.App.Ref",
-            "version": "[8.0.17, 8.0.17]"
-          },
-          {
-            "name": "Microsoft.WindowsDesktop.App.Ref",
-            "version": "[8.0.17, 8.0.17]"
+            "version": "[8.0.16, 8.0.16]"
           }
         ],
         "frameworkReferences": {
@@ -750,7 +744,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Users\\indep\\.dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.300/PortableRuntimeIdentifierGraph.json"
       }
     }
   },

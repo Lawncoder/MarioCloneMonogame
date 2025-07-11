@@ -4,13 +4,14 @@ using Mario.Components;
 using Mario.Enemy;
 using Mario.Helpers;
 using Microsoft.Xna.Framework;
+using MonoGameLibrary.ECS;
 using nkast.Aether.Physics2D.Dynamics;
 using World = Arch.Core.World;
 using Vector2 = nkast.Aether.Physics2D.Common.Vector2;
 
 namespace Mario.Systems;
 
-public class EnemyPatrolSystem : BaseSystem<World, float>
+public class EnemyPatrolSystem : SystemBase
 {
     public EnemyPatrolSystem(World world) : base(world) {}
 
