@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Arch.Buffer;
 using Arch.Core;
 using Arch.System;
 using Mario.Components;
 using Mario.Enemy;
 using Mario.Helpers;
+using Microsoft.Xna.Framework;
 using MonoGameLibrary.ECS;
-using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Dynamics;
+using Vector2 = nkast.Aether.Physics2D.Common.Vector2;
 using World = Arch.Core.World;
 
 
@@ -21,24 +24,25 @@ public class KoopaTroopaShellSystem
     public KoopaTroopaShellSystem(World world) : base(world)
     {
         _commandBuffer = Game1.CommandBuffer;
+     
 
     }
 
-
-    private nkast.Aether.Physics2D.Dynamics.World PhysicsWorld = Game1.PhysicsWorld;
+    private QueryDescription query =  new  QueryDescription().WithAll<KoopaTroopaComponent,PhysicsComponent, Transform, SpriteTypes>();
+   
     private CommandBuffer _commandBuffer;
+  
    
     public override void Update(in float deltaTime)
     {
-        var query = new  QueryDescription().WithAll<KoopaTroopaComponent,PhysicsComponent, Transform, SpriteTypes>();
+      
         float notIndTime = deltaTime;
         World.Query(in query, (Entity entity, ref KoopaTroopaComponent troopa,  ref PhysicsComponent physics, ref Transform transform, ref SpriteTypes spriteType) =>
-       {
+        {
            
 
          
            if (World.Has<HitComponent>(entity))
-               
            {
                var hitComponent = World.Get<HitComponent>(entity);
                if (troopa.IsShelled)
@@ -60,19 +64,26 @@ public class KoopaTroopaShellSystem
                        
                    
                    }
-                   if (CollisionAssistant.CategoryInCategories(CollisionLayers.Player, hitComponent.Fixture.CollisionCategories))
+                   else
                    {
-                       if (!troopa.Moving)
+                       if (CollisionAssistant.CategoryInCategories(CollisionLayers.Player, hitComponent.Fixture.CollisionCategories))
                        {
-                           physics.Fixture.CollisionCategories += (int)CollisionLayers.Killer;
-                           physics.Body.LinearVelocity = new nkast.Aether.Physics2D.Common.Vector2(7f * (hitComponent.Position.X - physics.Body.Position.X > 0 ? -1 : 1),
-                               physics.Body.LinearVelocity.Y);
-                           troopa.Velocity = physics.Body.LinearVelocity.X;
-                           troopa.Moving = true;
+                           if (!troopa.Moving)
+                           {
+                          
+                               physics.Body.LinearVelocity = new nkast.Aether.Physics2D.Common.Vector2(7f * (hitComponent.Position.X - physics.Body.Position.X > 0 ? -1 : 1),
+                                   physics.Body.LinearVelocity.Y);
+                               troopa.Velocity = physics.Body.LinearVelocity.X;
+                               troopa.Moving = true;
+                               DelayedKilling(physics);
+                            
                            
-                       }
+
+                           }
                    
+                       }
                    }
+                   
               
                }
                else
@@ -85,6 +96,8 @@ public class KoopaTroopaShellSystem
                        if (World.Has<Patrol>(entity))
                        {
                            Game1.CommandBuffer.Remove<Patrol>(entity);
+                           physics.Fixture.CollisionCategories -= (int)CollisionLayers.Enemy;
+                           physics.Fixture.CollisionCategories += (int)CollisionLayers.Ground;
                        }
 
                       
@@ -122,7 +135,8 @@ public class KoopaTroopaShellSystem
                        troopa.IsShelled = false;
                        Game1.CommandBuffer.Add(entity, new Patrol());
                        spriteType.SpriteType = SpriteTypes.SpriteTypesEnum.Koopa;
-                       
+                       physics.Fixture.CollisionCategories += (int)CollisionLayers.Enemy;
+                       physics.Fixture.CollisionCategories -= (int)CollisionLayers.Ground;
                        transform.Scale = new Vector2(16f/196f, 16f/ 290f);
                        
 
@@ -131,5 +145,13 @@ public class KoopaTroopaShellSystem
            }
            
        });
+    }
+
+    private async void DelayedKilling(PhysicsComponent physics)
+    {
+        await Task.Delay(100);
+        physics.Fixture.CollisionCategories -= (int)CollisionLayers.Ground;
+        physics.Fixture.CollisionCategories += (int)CollisionLayers.Enemy;
+        physics.Fixture.CollisionCategories += (int)CollisionLayers.Killer;
     }
 }

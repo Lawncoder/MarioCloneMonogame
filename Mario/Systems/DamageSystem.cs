@@ -4,7 +4,9 @@ using Arch.System;
 using Arch.Core;
 using Arch.Core.Extensions;
 using Mario.Components;
+using Mario.Enemy;
 using Mario.Helpers;
+using MonoGameLibrary;
 using MonoGameLibrary.Graphics;
 using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Dynamics;
@@ -15,7 +17,11 @@ namespace Mario.Systems;
 
 public class DamageSystem : SystemBase
 {
-    public DamageSystem(World world) : base(world) {}
+    
+    public DamageSystem(World world) : base(world)
+    {
+        
+    }
 
     public override void Update(in float deltaTime)
     {
@@ -43,7 +49,7 @@ public class DamageSystem : SystemBase
                         component.TimeToActuallyDie -= dTime;
                         if (component.TimeToActuallyDie <= 0)
                         {
-                            Game1.MaxCameraX = 160;
+                            
                             if (Game1.PhysicsWorld.BodyList.Contains(physics.Body))
                                 Game1.PhysicsWorld.Remove(physics.Body);
                             var marioBody = Game1.PhysicsWorld.CreateBody(new Vector2(2, 10), 0f, BodyType.Dynamic);
@@ -95,10 +101,10 @@ public class DamageSystem : SystemBase
                         {
                             if (Game1.PhysicsWorld.BodyList.Contains(physics.Body)) Game1.PhysicsWorld.Remove(physics.Body);
                             Game1.CommandBuffer.Remove<DeathComponent>(entity);
-
+                            Console.WriteLine("they ded");
                             if (entity.IsAlive())
                             {
-                               //Game1.CommandBuffer.Destroy(entity);
+                               Game1.CommandBuffer.Destroy(entity);
                             }
 
                            
@@ -128,6 +134,7 @@ public class DamageSystem : SystemBase
                     if (!World.Has<DeathComponent>(component.Entity))
                     {
                         Game1.CommandBuffer.Add(component.Entity, new DeathComponent());
+                        
                     }
                        
                        
@@ -136,7 +143,26 @@ public class DamageSystem : SystemBase
             
             
         });
+        query = new QueryDescription().WithAll<Patrol, PhysicsComponent, HitComponent>().WithNone<KoopaTroopaComponent>();
+        World.Query(in query, (Entity entity, ref PhysicsComponent physics, ref HitComponent collision) =>
+        {
+            bool enemy =
+                CollisionAssistant.CategoryInCategories(CollisionLayers.Enemy, physics.Fixture.CollisionCategories);
+            if (enemy && collision.CollisionNormal.Y >.9f)
+            {
+                if (CollisionAssistant.CategoryInCategories(CollisionLayers.Player,
+                        collision.Fixture.CollisionCategories))
+                {
+                    if (!World.Has<DeathComponent>(entity))
+                    {
+                        Game1.CommandBuffer.Add(entity, new DeathComponent());
+                    }
+                }
+            }
+        });
+
     }
+  
 
   
 }

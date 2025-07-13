@@ -27,6 +27,13 @@
 /processorParam:TextureFormat=Compressed
 /build:DefaultX5.spritefont
 
+#begin smbNes.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:smbNes.spritefont
+
 #begin goomba.jpg.jpg
 /importer:TextureImporter
 /processor:TextureProcessor

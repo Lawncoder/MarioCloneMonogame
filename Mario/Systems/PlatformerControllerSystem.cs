@@ -29,8 +29,7 @@ public class PlatformerControllerSystem : SystemBase
             
         
             
-            Game1.MaxCameraX = (float)Math.Max(Game1.MaxCameraX, GameDevMath.Physics2ScreenVector(physics.Body.Position).X);
-            Game1.Camera.Position.X = GameDevMath.LerpWithClamp(Game1.Camera.Position.X, -Game1.MaxCameraX + Game1.SCREEN_WIDTH * .5f/Game1.Camera.Scale.X, .4f);
+            
             
             var grounded = false;
             Game1.PhysicsWorld.RayCast((fixture, point, normal, fraction) =>
@@ -116,10 +115,11 @@ public class PlatformerControllerSystem : SystemBase
                     if (World.Has<HitComponent>(entity))
                     {
                         HitComponent hitComponent = World.Get<HitComponent>(entity);
-                        if (hitComponent.CollisionNormal.Y > 0.8 && CollisionAssistant.CategoryInCategories(CollisionLayers.Enemy, hitComponent.CollisionLayer))
+                        if (Math.Abs(hitComponent.CollisionNormal.Y) > 0.8 && CollisionAssistant.CategoryInCategories(CollisionLayers.Enemy, hitComponent.CollisionLayer) && physics.Body.Position.Y < hitComponent.Body.Position.Y)
                         {
                             
                             physics.Body.LinearVelocity = new Vector2(physics.Body.LinearVelocity.X, (float)-Math.Sqrt(3*Game1.PhysicsWorld.Gravity.Y));
+                           
                             
                         }
                      
@@ -163,6 +163,18 @@ public class PlatformerControllerSystem : SystemBase
                     if (physics.Body.LinearVelocity.Y > 0.001 && !grounded)
                     {
                         platformerCharacter.State = PlatformerCharacter.States.Falling;
+                    }
+
+                    if (World.Has<HitComponent>(entity))
+                    {
+                        var component = World.Get<HitComponent>(entity);
+                        if (CollisionAssistant.CategoryInCategories(CollisionLayers.Enemy, component.CollisionLayer))
+                        {
+                            if (Math.Abs(component.CollisionNormal.X) > Math.Abs(component.CollisionNormal.Y))
+                            {
+                                if (!World.Has<DeathComponent>(entity)) Game1.CommandBuffer.Add(entity, new DeathComponent());
+                            }
+                        }
                     }
 
                    

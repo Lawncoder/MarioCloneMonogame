@@ -108,3 +108,4 @@ C:/Users/indep/RiderProjects/Mario/Mario/obj/Debug/net8.0/Mario.sourcelink.json
 /Users/fire/RiderProjects/MarioCloneMonogame/Mario/obj/Debug/net8.0/Mario.pdb
 /Users/fire/RiderProjects/MarioCloneMonogame/Mario/obj/Debug/net8.0/Mario.genruntimeconfig.cache
 /Users/fire/RiderProjects/MarioCloneMonogame/Mario/obj/Debug/net8.0/ref/Mario.dll
+/Users/fire/RiderProjects/MarioCloneMonogame/Mario/bin/Debug/net8.0/Content/smbNes.xnb

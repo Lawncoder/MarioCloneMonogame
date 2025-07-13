@@ -6,6 +6,7 @@
   <SourceFiles>
     <File>/Users/fire/RiderProjects/MarioCloneMonogame/Mario/Content/Default.spritefont</File>
     <File>/Users/fire/RiderProjects/MarioCloneMonogame/Mario/Content/DefaultX5.spritefont</File>
+    <File>/Users/fire/RiderProjects/MarioCloneMonogame/Mario/Content/smbNes.spritefont</File>
     <File>/Users/fire/RiderProjects/MarioCloneMonogame/Mario/Content/goomba.jpg.jpg</File>
     <File>/Users/fire/RiderProjects/MarioCloneMonogame/Mario/Content/koopaTroopa.png</File>
     <File>/Users/fire/RiderProjects/MarioCloneMonogame/Mario/Content/mario.png</File>
@@ -15,6 +16,7 @@
     <File>/Users/fire/RiderProjects/MarioCloneMonogame/Mario/Content/spritesheet.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File>goomba.jpg</File>
