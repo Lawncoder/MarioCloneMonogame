@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SourceFile>/Users/fire/RiderProjects/MarioCloneMonogame/Mario/Content/smbNes.spritefont</SourceFile>
+  <SourceTime>2025-07-12T17:02:26.6593791-04:00</SourceTime>
+  <DestFile>/Users/fire/RiderProjects/MarioCloneMonogame/Mario/Content/bin/DesktopGL/Content/smbNes.xnb</DestFile>
+  <DestTime>2025-07-12T17:02:28.4479787-04:00</DestTime>
+  <Importer>FontDescriptionImporter</Importer>
+  <ImporterTime>2025-06-02T06:31:02-04:00</ImporterTime>
+  <Processor>FontDescriptionProcessor</Processor>
+  <ProcessorTime>2025-06-02T06:31:02-04:00</ProcessorTime>
+  <Parameters>
+    <Key>PremultiplyAlpha</Key>
+    <Value>True</Value>
+  </Parameters>
+  <Parameters>
+    <Key>TextureFormat</Key>
+    <Value>Compressed</Value>
+  </Parameters>
+  <Dependencies />
+  <BuildAsset />
+  <BuildOutput />
+</PipelineBuildEvent>
